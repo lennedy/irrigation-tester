@@ -2,17 +2,18 @@ import Tkinter as tk
 from Tkinter import *
 from PIL import ImageTk, Image
 import os
+import logging
 
 class PhotoFrame(tk.Frame):
     
     def __init__(self, master, img1, img2, name="my_frame"):
 
         tk.Frame.__init__(self, master, relief='ridge', bd=2)
+        self.updated = False
         self.img1_file= img1
         self.img2_file= img2
 #        self.button_widget()
         self.loadImage()
-        self.photo_widget()
         self.open = False
 
 
@@ -27,7 +28,8 @@ class PhotoFrame(tk.Frame):
         else:
           self.img = tk.Label(self, image = self.img2_file)
           self.open = False
-
+        self.updated = True
+        print(self.updated)
         self.img.grid(row=3, column=2, columnspan=4, pady=5)
         self.img.bind('<Double-1>', self.double_click)
 
@@ -42,13 +44,7 @@ class PhotoFrame(tk.Frame):
           self.loadImage(False)
         else:
           self.loadImage(True)
-
-    def photo_widget(self):
-      print ("hello1")
-        # ... Your code here
-
-    def Chk_Val(self):
-      print ("hello3")
+ 
 
     def updateOpen(self):
       self.loadImage(True)
@@ -56,9 +52,15 @@ class PhotoFrame(tk.Frame):
     def updateClose(self):
       self.loadImage(False)
 
-    def getFromServer(self):
-      print ("Teste1")
-      self.after(1000, self.getFromServer) 
+    def itWasUpdated(self):
+	updated=False
+	
+	if (self.updated==True):
+	  updated=True	  
+	  
+	self.updated=False
+	
+	return updated
 
 class ButtonFrame(tk.Frame):
 
@@ -106,10 +108,19 @@ class SetButtonFrame(tk.Frame):
         self.commad2(state)
         self.commad3(state)
 
+class Comunication():
+
+    def setValvPumpValues(self):
+	print ("Send Data")
+#	pl = {"pumps": pump_val,
+#	    "valves": valve_val}
+#	send_pump_valve_value(pl)
+
 
 class App():
 
     def __init__(self):
+      self.comunication = Comunication()
       self.root = Tk()
       self.root.title("Simulador de Irrigacao")
       image_size=70
@@ -129,9 +140,11 @@ class App():
       self.setButton.pack( side = BOTTOM )
 
     def updateFromServer(self):
-      print ("Teste0")
-      self.root.after(1000, self.updateFromServer) 
-	
+
+	if(self.f1.itWasUpdated()):
+	  self.comunication.setValvPumpValues()
+	self.root.after(1000, self.updateFromServer) 
+
 
     def main(self):
 	self.updateFromServer()
