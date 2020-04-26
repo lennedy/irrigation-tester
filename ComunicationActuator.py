@@ -57,7 +57,7 @@ class ComunicationActuator(Comunication):
   def __init__(self):
     self.valves = []
     self.pumps = []
-    automatic = True
+    self.automatic = False
 
 #########################################################################################
 
@@ -127,12 +127,14 @@ class ComunicationActuator(Comunication):
 
     response = self.get_pump_valve_value()
     obj = json.loads(response)
+
     pump_instructions = obj["pumps"]
     valve_instructions = obj["valves"]
 
 #    print(pump_instructions)
 #    print(valve_instructions)
 
+    self.automatic  = obj["automatic"]
 
     for n in valve_instructions:
       self[n] = valve_instructions[n]
@@ -158,6 +160,11 @@ class ComunicationActuator(Comunication):
 
     self.send_and_get_instructions(payload)
 
+
+#########################################################################################
+
+  def getAutomatic(self):
+    return self.automatic
 
 #########################################################################################
 
