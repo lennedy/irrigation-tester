@@ -9,7 +9,7 @@ class PhotoFrame(tk.Frame):
     
 	def __init__(self, master, img1, img2, name="my_frame"):
 
-		tk.Frame.__init__(self, master, relief='ridge', bd=2)
+		tk.Frame.__init__(self, master, relief='ridge', bd=2, borderwidth = 0)
 		self.updated = False
 		self.updatedByGui = False
 		self.img1_file= img1
@@ -101,7 +101,7 @@ class RadioFrame(tk.Frame):
 		return itWasUpdated
 
 	def changeState(self, state=False):
-		self.automatic.set(IntVar(state))
+		self.automatic.set((state))
 
 class ButtonFrame(tk.Frame):
 
@@ -162,6 +162,53 @@ class SetButtonFrame(tk.Frame):
 	def changeRadioState(self, state):
 		self.radioFrame.changeState(state);
 
+class ImagesFrame(tk.Frame):
+
+	def __init__(self, master):
+		tk.Frame.__init__(self, master, relief='ridge', bd=2)
+		image_size=70
+		self.img1 = ImageTk.PhotoImage(Image.open("valv_abert.gif").resize((image_size+30, image_size)))
+		self.img2 = ImageTk.PhotoImage(Image.open("valv_fechada.gif").resize((image_size+30, image_size)))
+
+		self.imgBomba = ImageTk.PhotoImage(Image.open("bomba.gif").resize((140+30, 140)))
+		self.imgBomba2 = ImageTk.PhotoImage(Image.open("bomba2.gif").resize((140+30, 140)))
+
+		self.f1 = PhotoFrame(self, self.img1, self.img2, "f1")
+		self.f1.grid(row=0, column=1)
+
+		self.f2 = PhotoFrame(self, self.img1, self.img2, "f2")
+		self.f2.grid(row=1, column=1)
+
+		self.f3 = PhotoFrame(self, self.img1, self.img2, "f3")
+		self.f3.grid(row=2, column=1)
+
+		self.f4 = PhotoFrame(self, self.imgBomba2, self.imgBomba, "f4")
+		self.f4.grid(row=1, column=0)
+
+		self.frames = [PhotoImage(file='bomba2.gif',format = 'gif -index %i' %(i)) for i in range(10)]
+		self.ind=0
+#		self.f4.after(0, self.update, 0)
+
+	def wasItUpdated(self):
+		aFrameWasUpdated=False
+		if( self.f1.wasItUpdated() ):
+			aFrameWasUpdated=True
+		if( self.f2.wasItUpdated() ):
+			aFrameWasUpdated=True
+		if( self.f3.wasItUpdated() ):
+			aFrameWasUpdated=True
+		
+		return aFrameWasUpdated
+
+
+#	def update(self):
+#		if self.ind==10:
+#			self.ind=0
+#		frame = self.frames[self.ind]
+#		self.ind += 1
+#		self.f4.configure(image=frame)
+		#root.after(100, update, ind)
+
 
 class App():
 
@@ -169,20 +216,11 @@ class App():
 		self.comunication = ComunicationActuator()
 		self.root = Tk()
 		self.root.title("Simulador de Irrigacao")
-		image_size=70
-		self.img1 = ImageTk.PhotoImage(Image.open("valv_abert.gif").resize((image_size+30, image_size)))
-		self.img2 = ImageTk.PhotoImage(Image.open("valv_fechada.gif").resize((image_size+30, image_size)))
 
-		self.f1 = PhotoFrame(self.root, self.img1, self.img2, "f1")
-		self.f1.pack( side = TOP )
+		self.imgsFrame = ImagesFrame(self.root)
+		self.imgsFrame.pack( side = TOP)
 
-		self.f2 = PhotoFrame(self.root, self.img1, self.img2, "f2")
-		self.f2.pack( side = TOP )
-
-		self.f3 = PhotoFrame(self.root, self.img1, self.img2, "f3")
-		self.f3.pack( side = TOP )
-
-		self.setButton = SetButtonFrame(self.root, self.f1.pressedButton, self.f2.pressedButton, self.f3.pressedButton)
+		self.setButton = SetButtonFrame(self.root, self.imgsFrame.f1.pressedButton, self.imgsFrame.f2.pressedButton, self.imgsFrame.f3.pressedButton)
 		self.setButton.pack( side = BOTTOM )
 
 		self.comunication.addValv( Valve(pin = -1, name =  "valve1") )
@@ -192,19 +230,15 @@ class App():
 	def updateFromServer(self):
 		automatic =  self.setButton.isItAutomatic()
 		aFrameWasUpdated=False
-		if( self.f1.wasItUpdated() ):
-			aFrameWasUpdated=True
-		if( self.f2.wasItUpdated() ):
-			aFrameWasUpdated=True
-		if( self.f3.wasItUpdated() ):
+		if( self.imgsFrame.wasItUpdated() ):
 			aFrameWasUpdated=True
 		if( self.setButton.wasItUpdated() ):
 			aFrameWasUpdated=True
 
 
-		self.comunication["valve1"] = self.f1.isActive()
-		self.comunication["valve2"] = self.f2.isActive()
-		self.comunication["valve3"] = self.f3.isActive()
+		self.comunication["valve1"] = self.imgsFrame.f1.isActive()
+		self.comunication["valve2"] = self.imgsFrame.f2.isActive()
+		self.comunication["valve3"] = self.imgsFrame.f3.isActive()
 		self.comunication.updateAtomatic(automatic)
 		print("Automatico: ",automatic)
 		if( aFrameWasUpdated ):
@@ -213,10 +247,13 @@ class App():
 		self.comunication.getDataInServer()
 		##self.comunication.update()
 
-		self.f1.changeValveState(self.comunication["valve1"])
-		self.f2.changeValveState(self.comunication["valve2"])
-		self.f3.changeValveState(self.comunication["valve3"])
+		self.imgsFrame.f1.changeValveState(self.comunication["valve1"])
+		self.imgsFrame.f2.changeValveState(self.comunication["valve2"])
+		self.imgsFrame.f3.changeValveState(self.comunication["valve3"])
+		self.setButton.changeRadioState(self.comunication.getAutomatic())
 
+
+#		self.imgsFrame.update()
 		self.root.after(1000, self.updateFromServer) 
 
 
