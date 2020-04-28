@@ -187,9 +187,6 @@ class ImagesFrame(tk.Frame):
 		self.f4 = PhotoFrame(self, self.imgBomba2, self.imgBomba, "f4")
 		self.f4.grid(row=1, column=0)
 
-		self.f5 = PhotoFrame(self, self.T, self.T, "f5")
-		self.f5.grid(row=1, column=1)
-
 
 
 	def wasItUpdated(self):
