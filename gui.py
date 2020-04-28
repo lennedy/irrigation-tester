@@ -170,24 +170,27 @@ class ImagesFrame(tk.Frame):
 		self.img1 = ImageTk.PhotoImage(Image.open("valv_abert.gif").resize((image_size+30, image_size)))
 		self.img2 = ImageTk.PhotoImage(Image.open("valv_fechada.gif").resize((image_size+30, image_size)))
 
-		self.imgBomba = ImageTk.PhotoImage(Image.open("bomba.gif").resize((140+30, 140)))
-		self.imgBomba2 = ImageTk.PhotoImage(Image.open("bomba2.gif").resize((140+30, 140)))
+		self.imgBomba = ImageTk.PhotoImage(Image.open("bomba2_on.gif").resize((140+30, 140)))
+		self.imgBomba2 = ImageTk.PhotoImage(Image.open("bomba2_off.gif").resize((140+30, 140)))
+
+		self.T = ImageTk.PhotoImage(Image.open("T2.gif").resize((140+30, 140)))
 
 		self.f1 = PhotoFrame(self, self.img1, self.img2, "f1")
-		self.f1.grid(row=0, column=1)
+		self.f1.grid(row=0, column=2)
 
 		self.f2 = PhotoFrame(self, self.img1, self.img2, "f2")
-		self.f2.grid(row=1, column=1)
+		self.f2.grid(row=1, column=2)
 
 		self.f3 = PhotoFrame(self, self.img1, self.img2, "f3")
-		self.f3.grid(row=2, column=1)
+		self.f3.grid(row=2, column=2)
 
 		self.f4 = PhotoFrame(self, self.imgBomba2, self.imgBomba, "f4")
 		self.f4.grid(row=1, column=0)
 
-		self.frames = [PhotoImage(file='bomba2.gif',format = 'gif -index %i' %(i)) for i in range(10)]
-		self.ind=0
-#		self.f4.after(0, self.update, 0)
+		self.f5 = PhotoFrame(self, self.T, self.T, "f5")
+		self.f5.grid(row=1, column=1)
+
+
 
 	def wasItUpdated(self):
 		aFrameWasUpdated=False
@@ -199,15 +202,6 @@ class ImagesFrame(tk.Frame):
 			aFrameWasUpdated=True
 		
 		return aFrameWasUpdated
-
-
-#	def update(self):
-#		if self.ind==10:
-#			self.ind=0
-#		frame = self.frames[self.ind]
-#		self.ind += 1
-#		self.f4.configure(image=frame)
-		#root.after(100, update, ind)
 
 
 class App():
@@ -252,8 +246,6 @@ class App():
 		self.imgsFrame.f3.changeValveState(self.comunication["valve3"])
 		self.setButton.changeRadioState(self.comunication.getAutomatic())
 
-
-#		self.imgsFrame.update()
 		self.root.after(1000, self.updateFromServer) 
 
 
